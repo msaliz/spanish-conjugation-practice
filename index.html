@@ -1,571 +1,301 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Spanish Conjugation Practice</title>
-
  
-
 <style>
-
 body{
-
 font-family: Arial, sans-serif;
-
 max-width:800px;
-
 margin:auto;
-
 padding:20px;
-
 background:#f4f7fa;
-
 }
-
  
-
 .card{
-
 background:white;
-
 padding:20px;
-
 border-radius:10px;
-
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
-
 margin-bottom:20px;
-
 }
-
  
-
 textarea{
-
 width:100%;
-
 height:150px;
-
 }
-
  
-
 button{
-
 background:#0078d4;
-
 color:white;
-
 border:none;
-
 padding:10px 20px;
-
 border-radius:6px;
-
 cursor:pointer;
-
 }
-
  
-
 button:hover{
-
 background:#005ea6;
-
 }
-
  
-
 input{
-
 padding:10px;
-
-width:200px;
-
 }
-
  
-
 .correct{
-
 color:green;
-
 font-weight:bold;
-
 }
-
  
-
 .incorrect{
-
 color:red;
-
 font-weight:bold;
-
 }
-
 </style>
-
 </head>
-
  
-
 <body>
-
  
-
 <div id="teacherView" class="card">
-
 <h2>Create Activity</h2>
-
  
-
 <p>Enter one verb per line:</p>
-
  
-
-<textarea id="verbs">
-
-hablar
-
+<textarea id="verbs">hablar
 comer
-
-vivir
-
-</textarea>
-
+vivir</textarea>
  
-
 <br><br>
-
  
-
 <button onclick="generateActivity()">
-
 Generate Activity Link
-
 </button>
-
  
-
 <p id="activityLink"></p>
-
 </div>
-
  
-
 <div id="studentView" class="card" style="display:none;">
-
-<h2>Spanish Conjugation Practice</h2>
-
- 
-
-<h3 id="questionNumber"></h3>
-
- 
-
-<p>
-
-Conjugate:
-
-<strong id="verb"></strong>
-
-(
-
-<strong id="pronoun"></strong>
-
-)
-
-</p>
-
- 
-
-<input id="answer">
-
- 
-
-<button onclick="checkAnswer()">
-
-Check
-
-</button>
-
- 
-
-<p id="feedback"></p>
-
- 
-
 </div>
-
  
-
 <script>
-
  
-
 const pronouns = [
-
 "yo",
-
 "tú",
-
 "él/ella",
-
 "nosotros",
-
 "ellos"
-
 ];
-
  
-
 const endings = {
-
 ar:{
-
 "yo":"o",
-
 "tú":"as",
-
 "él/ella":"a",
-
 "nosotros":"amos",
-
 "ellos":"an"
-
 },
-
 er:{
-
 "yo":"o",
-
 "tú":"es",
-
 "él/ella":"e",
-
 "nosotros":"emos",
-
 "ellos":"en"
-
 },
-
 ir:{
-
 "yo":"o",
-
 "tú":"es",
-
 "él/ella":"e",
-
 "nosotros":"imos",
-
 "ellos":"en"
-
 }
-
 };
-
  
-
-let questions=[];
-
-let current=0;
-
-let score=0;
-
+let questions = [];
+let current = 0;
+let score = 0;
+let studentName = "";
  
-
 function generateActivity(){
-
  
-
 const verbs =
-
 document.getElementById("verbs")
-
 .value
-
 .split("\n")
-
-.map(v=>v.trim())
-
-.filter(v=>v);
-
+.map(v => v.trim())
+.filter(v => v);
  
-
 const encoded =
-
 encodeURIComponent(JSON.stringify(verbs));
-
  
-
 const link =
-
 window.location.origin +
-
 window.location.pathname +
-
-"?verbs=" +
-
-encoded;
-
+"?verbs=" + encoded;
  
-
-document.getElementById("activityLink")
-
-.innerHTML =
-
-`<a href="${link}" target="_blank">${link}</a>`;
-
+document.getElementById("activityLink").innerHTML =
+`<p><strong>Share this link:</strong></p>
+<textarea readonly style="height:80px;">${link}</textarea>`;
 }
-
  
-
 function makeQuestions(verbs){
-
  
-
 for(let i=0;i<10;i++){
-
  
-
-const verb =
-
-verbs[Math.floor(Math.random()*verbs.length)];
-
- 
-
-const pronoun =
-
-pronouns[Math.floor(Math.random()*pronouns.length)];
-
- 
-
 questions.push({
-
-verb,
-
-pronoun
-
+verb: verbs[Math.floor(Math.random()*verbs.length)],
+pronoun: pronouns[Math.floor(Math.random()*pronouns.length)]
 });
-
 }
-
 }
-
  
-
 function conjugate(verb,pronoun){
-
  
-
-const ending =
-
-verb.slice(-2);
-
+const ending = verb.slice(-2);
+const stem = verb.slice(0,-2);
  
-
-const stem =
-
-verb.slice(0,-2);
-
- 
-
-return stem +
-
-endings[ending][pronoun];
-
+return stem + endings[ending][pronoun];
 }
-
  
-
 function showQuestion(){
-
  
-
-if(current>=10){
-
+if(current >= 10){
  
-
-document.getElementById("studentView")
-
-.innerHTML =
-
-`<h2>Finished!</h2>
-
-<h3>Score: ${score}/10</h3>`;
-
+const completed = new Date();
  
-
+document.getElementById("studentView").innerHTML =
+`
+<h2>Activity Complete</h2>
+ 
+<p><strong>Student:</strong> ${studentName}</p>
+ 
+<p><strong>Score:</strong> ${score}/10</p>
+ 
+<p><strong>Completed:</strong></p>
+ 
+<p>${completed.toLocaleString()}</p>
+ 
+<hr>
+ 
+<p><strong>Please take a screenshot of this page and submit it.</strong></p>
+`;
+ 
 return;
-
 }
-
  
-
-document.getElementById("questionNumber")
-
-.innerText =
-
-`Question ${current+1} of 10`;
-
- 
-
-document.getElementById("verb")
-
-.innerText =
-
-questions[current].verb;
-
- 
-
-document.getElementById("pronoun")
-
-.innerText =
-
-questions[current].pronoun;
-
- 
-
-document.getElementById("answer").value="";
-
-document.getElementById("feedback").innerHTML="";
-
-}
-
- 
-
-function checkAnswer(){
-
- 
-
 const q = questions[current];
-
  
-
+document.getElementById("studentView").innerHTML =
+`
+<h2>Spanish Conjugation Practice</h2>
+ 
+<p>Question ${current+1} of 10</p>
+ 
+<p>
+Conjugate:
+<strong>${q.verb}</strong>
+(${q.pronoun})
+</p>
+ 
+<input id="answer">
+ 
+<button onclick="checkAnswer()">
+Check
+</button>
+ 
+<p id="feedback"></p>
+`;
+}
+ 
+function checkAnswer(){
+ 
+const q = questions[current];
+ 
 const student =
-
 document.getElementById("answer")
-
 .value
-
 .trim()
-
 .toLowerCase();
-
  
-
 const correct =
-
 conjugate(q.verb,q.pronoun)
-
 .toLowerCase();
-
  
-
-if(student===correct){
-
+const feedback =
+document.getElementById("feedback");
  
-
+if(student === correct){
+ 
 score++;
-
  
-
-document.getElementById("feedback")
-
-.innerHTML =
-
-`<span class="correct">✅ Correct</span>`;
-
+feedback.innerHTML =
+'<span class="correct">✅ Correct</span>';
  
-
 }else{
-
  
-
-document.getElementById("feedback")
-
-.innerHTML =
-
+feedback.innerHTML =
 `<span class="incorrect">
-
-❌ Incorrect.
-
-Correct answer: ${correct}
-
+❌ Incorrect. Correct answer: ${correct}
 </span>`;
-
 }
-
  
-
 current++;
-
  
-
 setTimeout(showQuestion,1500);
-
 }
-
  
-
 const params =
-
 new URLSearchParams(window.location.search);
-
  
-
 if(params.has("verbs")){
-
  
-
-document.getElementById("teacherView")
-
-.style.display="none";
-
+document.getElementById("teacherView").style.display = "none";
  
-
-document.getElementById("studentView")
-
-.style.display="block";
-
+document.getElementById("studentView").style.display = "block";
  
-
 const verbs =
-
 JSON.parse(
-
 decodeURIComponent(
-
 params.get("verbs")
-
 )
-
 );
-
  
-
 makeQuestions(verbs);
-
  
-
-showQuestion();
-
+document.getElementById("studentView").innerHTML =
+`
+<h2>Spanish Conjugation Practice</h2>
+ 
+<p>Enter your name:</p>
+ 
+<input id="studentName">
+ 
+<button onclick="startQuiz()">
+Start
+</button>
+`;
 }
-
  
-
+function startQuiz(){
+ 
+studentName =
+document.getElementById("studentName")
+.value
+.trim();
+ 
+if(!studentName){
+ 
+alert("Please enter your name.");
+ 
+return;
+}
+ 
+showQuestion();
+}
+ 
 </script>
-
  
-
 </body>
-
 </html>
